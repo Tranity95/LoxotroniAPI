@@ -7,7 +7,7 @@ using System.Drawing;
 
 namespace LoxotroniAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class RouletteController : ControllerBase
     {
@@ -19,35 +19,27 @@ namespace LoxotroniAPI.Controllers
         }
 
         [HttpPut("Classic")]
-        public ActionResult<UserDTO> ClassicRoulette(string color, decimal stake, UserDTO user)
+        public ActionResult<UserDTO> ClassicRoulette(ClassicWheel classicWheel)
         {
-            var data = _context.Users.Find(user.Id);
-            user.Balance = data.Balance - stake;
-            user.Win = false;
-            Random random = new Random();
-            int number = random.Next(1, 101); // Генерируем случайное число от  1 до  100
-
-            if (number <= 49 && color == "Red")
+            var data = _context.Users.Find(classicWheel.User.Id);
+            classicWheel.User.Balance = data.Balance - classicWheel.Stake;
+            classicWheel.User.Win = false;
+            if(classicWheel.WinColor == classicWheel.Color)
             {
-                user.Win = true;
-                user.Balance = user.Balance + stake * 1.2m;
+                if (classicWheel.WinColor != "Green")
+                {
+                    classicWheel.User.Win = true;
+                    classicWheel.User.Balance = classicWheel.User.Balance + classicWheel.Stake * 1.2m;
+                }
+                else if (classicWheel.WinColor == "Green")
+                {
+                    classicWheel.User.Win = true;
+                    classicWheel.User.Balance = classicWheel.User.Balance + classicWheel.Stake * 2;
+                }
             }
-            else if (number <= 99 && number > 49 && color == "Black")
-            {
-
-                user.Win = true;
-                user.Balance = user.Balance + stake * 1.2m;
-
-            }
-            else if (number > 99 && color == "Green")
-            {
-                user.Win = true;
-                user.Balance = user.Balance + stake * 2;
-            }
-
-            data.Balance = user.Balance;
+            data.Balance = classicWheel.User.Balance;
             _context.SaveChanges();
-            return Ok(user);
+            return Ok(classicWheel.User);
         }
         
         [HttpPut("Wheel")]
