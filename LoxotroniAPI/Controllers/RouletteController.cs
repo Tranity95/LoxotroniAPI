@@ -1,5 +1,6 @@
 ﻿using Loxotron;
 using LoxotroniAPI.DTO;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components.Web.Virtualization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -18,6 +19,7 @@ namespace LoxotroniAPI.Controllers
             _context = context;
         }
 
+        //[Authorize]
         [HttpPut("Classic")]
         public ActionResult<UserDTO> ClassicRoulette(ClassicWheel classicWheel)
         {
@@ -43,36 +45,36 @@ namespace LoxotroniAPI.Controllers
         }
         
         [HttpPut("Wheel")]
-        public ActionResult<UserDTO> WheelRoulette(decimal stake, UserDTO user) 
+        public ActionResult<UserDTO> WheelRoulette(Wheeel wheeel) 
         {
-            var data = _context.Users.Find(user.Id);
-            user.Balance = data.Balance - stake;
+            var data = _context.Users.Find(wheeel.User.Id);
+            wheeel.User.Balance = data.Balance - wheeel.Stake;
             Random random = new Random();
             int number = random.Next(1, 17);
 
-            if (number <= 6)
+            if (wheeel.Thing == "-x0.5")
             {
-                user.Balance = user.Balance + stake * 0.5m;
+                wheeel.User.Balance = wheeel.User.Balance + wheeel.Stake * 0.5m;
             }
-            else if (number > 6 && number <= 10)
+            else if (wheeel.Thing == "+x1.2")
             {
-                user.Balance = user.Balance + stake * 1.2m;
+                wheeel.User.Balance = wheeel.User.Balance + wheeel.Stake * 1.2m;
             }
-            else if (number >10 && number <= 14)
+            else if (wheeel.Thing == "-stake")
             {
 
             }
-            else if (number == 15)
+            else if (wheeel.Thing == "-x2")
             {
-                user.Balance = user.Balance - stake * 2;
+                wheeel.User.Balance = wheeel.User.Balance - wheeel.Stake * 2;
             }
-            else if (number == 16)
+            else if (wheeel.Thing == "+x3")
             {
-                user.Balance = user.Balance + stake * 3;
+                wheeel.User.Balance = wheeel.User.Balance + wheeel.Stake * 3;
             }
-            data.Balance = user.Balance;
+            data.Balance = wheeel.User.Balance;
             _context.SaveChanges();
-            return Ok(user);
+            return Ok(wheeel.User);
         }
         
 

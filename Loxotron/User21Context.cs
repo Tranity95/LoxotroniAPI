@@ -8,7 +8,6 @@ public partial class User21Context : DbContext
 {
     public User21Context()
     {
-        //Database.EnsureCreated();
     }
 
     public User21Context(DbContextOptions<User21Context> options)
